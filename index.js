@@ -17,7 +17,8 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin) || /\.vercel\.app$/.test(new URL(origin).hostname)) {
+    const host = origin ? new URL(origin).hostname : '';
+    if (!origin || allowedOrigins.includes(origin) || host === 'localhost' || /\.vercel\.app$/.test(host)) {
       return callback(null, true);
     }
     return callback(new Error('CORS policy does not allow access from the specified origin.'), false);
@@ -28,7 +29,7 @@ app.use(cors({
 app.use(express.json({ limit: '1mb' }));
 
 // Only forward requests to Mastercard gateway hosts so this can't be used as an open proxy
-const ALLOWED_HOST_SUFFIXES = (process.env.ALLOWED_GATEWAY_HOSTS || 'gateway.mastercard.com')
+const ALLOWED_HOST_SUFFIXES = (process.env.ALLOWED_GATEWAY_HOSTS || 'mastercard.com')
   .split(',')
   .map(h => h.trim().toLowerCase())
   .filter(Boolean);
